@@ -18,10 +18,12 @@ const userRegister = async (req, res) => {
     });
   }
 
+  // 🔒 Hash password
+  const hashedPassword = await bcrypt.hash(password, 10)
   
   const user = await User.create({
     username,
-    password,
+    password: hashedPassword,
   });
 
   res.status(201).json({
