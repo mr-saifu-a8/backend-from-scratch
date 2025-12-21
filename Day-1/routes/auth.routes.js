@@ -1,10 +1,13 @@
 const express = require('express')
 const router = express.Router();
+const authMiddleware = require('../middlewares/auth.middleware')
 
-const { userRegister, userUpdate, deleteUser } = require('../controllers/auth.controller')
+const { userRegister, userUpdate, deleteUser, userLogin } = require('../controllers/auth.controller')
 
 router.post('/register', userRegister)
-router.patch('/update/:id', userUpdate)
-router.delete('/delete/:id', deleteUser)
+router.post('/login', userLogin)
+
+router.patch('/update/:id', authMiddleware, userUpdate)
+router.delete('/delete/:id', authMiddleware, deleteUser)
 
 module.exports = router

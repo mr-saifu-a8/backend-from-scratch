@@ -1,5 +1,7 @@
 const User = require("../models/user");
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
+
 
 const userRegister = async (req, res) => {
   const { username, password } = req.body;
@@ -82,4 +84,45 @@ const deleteUser = async (req, res) => {
     message: "User deleted successfully"
   })
 }
-module.exports = { userRegister, userUpdate, deleteUser };
+
+const userLogin = async (req, res) => {
+  
+  const { username, password } = req.body
+  
+  if (!username || !password) {
+    return res.status(400).json({
+      success: false,
+      message: 'All fields are required'
+    })
+  }
+
+  const user = await User.findOne({username})
+
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: "User not found"
+    })
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password)
+
+  if (!isMatch) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid password",
+    });
+  }
+
+  const token = jwt.sign(
+    { userId: user._id },
+    "SECRECT_KEY",
+  )
+
+  res.status(201).json({
+    success: true,
+    message: 'Login successfully',
+    token
+  })
+}
+module.exports = { userRegister, userUpdate, deleteUser, userLogin };
